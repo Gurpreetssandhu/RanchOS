@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+.git
+.github
+.turbo
+**/.turbo
+.serena
+.env
+.env.*
+!.env.qa.example
+*.log
+docs
+reference_folder
+package-lock.json.*
