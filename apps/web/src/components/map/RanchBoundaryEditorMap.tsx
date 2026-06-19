@@ -391,7 +391,7 @@ export default function RanchBoundaryEditorMap({
 
   return (
     <div className="relative h-full min-h-[360px] w-full overflow-hidden rounded-2xl bg-stone-200">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <div ref={mapContainer} className="h-full w-full" />
 
       <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%-2rem,28rem)] flex-wrap items-center gap-2 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur">
         <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} />

@@ -589,7 +589,7 @@ export default function BlockMap({
 
   return (
     <div className="relative h-full min-h-[400px] w-full overflow-hidden bg-stone-200">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <div ref={mapContainer} className="h-full w-full" />
 
       {!editable ? (
         <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="absolute left-1/2 top-4 z-30 -translate-x-1/2" />
