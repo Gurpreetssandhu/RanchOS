@@ -157,7 +157,7 @@ export default function OnboardingWizard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white shadow rounded-xl p-8">
+      <div className="w-full max-w-4xl bg-white shadow rounded-xl p-8">
         <div className="flex justify-between items-center mb-8 border-b pb-4">
           <h1 className="text-2xl font-bold text-gray-900">Welcome to RanchOS</h1>
           <span className="text-sm font-medium text-gray-500">Step {step} of 3</span>
@@ -278,7 +278,7 @@ export default function OnboardingWizard() {
             <p className="text-xs text-gray-500">
               Optional for now, but adding ranch GPS lets RanchOS center the map on your property instead of the Fresno fallback.
             </p>
-            <div className="h-[320px] overflow-hidden rounded-2xl border border-gray-200">
+            <div className="h-[440px] overflow-hidden rounded-2xl border border-gray-200">
               <RanchCenterPickerMap
                 center={
                   form.gpsLat && form.gpsLng
@@ -301,7 +301,7 @@ export default function OnboardingWizard() {
                 Draw the ranch outline now if you want dashboard maps to open to the full property and block editing to warn when a boundary drifts outside the ranch.
               </p>
             </div>
-            <div className="h-[360px] overflow-hidden rounded-2xl border border-gray-200">
+            <div className="h-[600px] overflow-hidden rounded-2xl border border-gray-200">
               <RanchBoundaryEditorMap
                 center={
                   form.gpsLat && form.gpsLng

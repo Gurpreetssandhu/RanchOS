@@ -5,8 +5,9 @@ import { bbox } from '@turf/turf';
 import type { FeatureCollection } from 'geojson';
 import maplibregl from 'maplibre-gl';
 import MapLegend from '@/components/map/MapLegend';
+import BaseMapToggle from '@/components/map/BaseMapToggle';
 import { BlockGeometry, BlockRecord, blockToMapFeature, formatBlockCropLabel } from '@/lib/blocks';
-import { getMapStyle } from '@/lib/map-style';
+import { addSatelliteLayer, getMapStyle, setBaseMap, type BaseMapMode } from '@/lib/map-style';
 import { centerToCoordinateFields, type RanchBoundary, type RanchMapViewport } from '@/lib/ranches';
 
 type RanchCenterPickerMapProps = {
@@ -104,6 +105,7 @@ export default function RanchCenterPickerMap({
   const onViewportChangeRef = useRef(onViewportChange);
   const lastPublishedViewport = useRef<RanchMapViewport | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const [baseMap, setBaseMapMode] = useState<BaseMapMode>('street');
 
   const blockFeatures = useMemo<FeatureCollection>(() => ({
     type: 'FeatureCollection',
@@ -166,9 +168,11 @@ export default function RanchCenterPickerMap({
     });
 
     nextMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    nextMap.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
     nextMap.on('load', () => {
       setIsMapReady(true);
+      addSatelliteLayer(nextMap);
       nextMap.addSource(BLOCK_SOURCE_ID, {
         type: 'geojson',
         data: blockFeatures,
@@ -338,11 +342,19 @@ export default function RanchCenterPickerMap({
       .addTo(mapInstance);
   }, [center, isMapReady]);
 
+  useEffect(() => {
+    if (map.current && isMapReady) {
+      setBaseMap(map.current, baseMap);
+    }
+  }, [baseMap, isMapReady]);
+
   const coordinateFields = centerToCoordinateFields(center ?? null);
 
   return (
     <div className="relative h-full min-h-[340px] w-full overflow-hidden rounded-2xl bg-stone-200">
       <div ref={mapContainer} className="absolute inset-0" />
+
+      <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="absolute left-1/2 top-4 -translate-x-1/2" />
 
       <div className="absolute left-4 top-4 z-10 max-w-sm rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur">
         <p className="text-sm font-semibold text-stone-900">Click the map to set ranch center</p>
