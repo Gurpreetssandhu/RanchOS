@@ -48,17 +48,14 @@
   --color-status-neutral: #6B7280;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.theme-1):not(.theme-2):not(.theme-dark) {
-    --color-bg-primary: #0C0A09;
-    --color-bg-secondary: #1C1917;
-    --color-bg-card: #292524;
-    --color-bg-sidebar: #0C0A09;
-    --color-text-primary: #FAFAF9;
-    --color-text-secondary: #D6D3D1;
-    --color-border: #3D3937;
-  }
-}
+/*
+ * The default palette above is light-first. Dark mode is an explicit, opt-in
+ * theme (`theme-dark`, selectable on the Themes page) — not driven by the OS.
+ * A prefers-color-scheme:dark override here only flipped the CSS text/background
+ * variables, but pages using hardcoded Tailwind backgrounds (bg-white,
+ * bg-gray-50) did not flip, producing white-on-white text. Keep the default
+ * light regardless of OS setting.
+ */
 
 body {
   background-color: var(--color-bg-primary);
