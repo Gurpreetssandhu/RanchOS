@@ -302,8 +302,15 @@ export default function BlockMap({
     nextMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     nextMap.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
+    // The container's final height can resolve after the map is created (async
+    // layout, tab switches, flex sizing). Resize the map whenever it changes so
+    // the canvas fills the box instead of rendering at a stale/blank size.
+    const resizeObserver = new ResizeObserver(() => nextMap.resize());
+    resizeObserver.observe(nextMap.getContainer());
+
     nextMap.on('load', () => {
       setIsMapReady(true);
+      nextMap.resize();
       addSatelliteLayer(nextMap);
 
       nextMap.addSource(BLOCK_SOURCE_ID, {
@@ -460,6 +467,7 @@ export default function BlockMap({
     });
 
     return () => {
+      resizeObserver.disconnect();
       const geomanInstance = geoman.current;
       const shouldRemoveSources = Boolean(nextMap.getStyle()?.layers);
       geoman.current = null;

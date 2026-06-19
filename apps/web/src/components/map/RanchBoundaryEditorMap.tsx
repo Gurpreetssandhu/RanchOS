@@ -206,8 +206,12 @@ export default function RanchBoundaryEditorMap({
     nextMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     nextMap.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
+    const resizeObserver = new ResizeObserver(() => nextMap.resize());
+    resizeObserver.observe(nextMap.getContainer());
+
     nextMap.on('load', () => {
       setIsMapReady(true);
+      nextMap.resize();
       addSatelliteLayer(nextMap);
       nextMap.addSource(BLOCK_SOURCE_ID, {
         type: 'geojson',
@@ -295,6 +299,7 @@ export default function RanchBoundaryEditorMap({
     });
 
     return () => {
+      resizeObserver.disconnect();
       const geomanInstance = geoman.current;
       const shouldRemoveSources = Boolean(nextMap.getStyle()?.layers);
       geoman.current = null;
