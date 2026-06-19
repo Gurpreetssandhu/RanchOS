@@ -14,8 +14,6 @@ import {
 } from '@/lib/blocks';
 import { addSatelliteLayer, getMapStyle, setBaseMap, type BaseMapMode } from '@/lib/map-style';
 import BaseMapToggle from '@/components/map/BaseMapToggle';
-import MapExpandButton from '@/components/map/MapExpandButton';
-import { useMapExpand } from '@/components/map/useMapExpand';
 import type { RanchBoundary, RanchMapViewport } from '@/lib/ranches';
 
 type RanchBoundaryEditorMapProps = {
@@ -92,7 +90,6 @@ export default function RanchBoundaryEditorMap({
   const [isMapReady, setIsMapReady] = useState(false);
   const [activeTool, setActiveTool] = useState<EditorTool>(null);
   const [baseMap, setBaseMapMode] = useState<BaseMapMode>('street');
-  const { isExpanded, setExpanded } = useMapExpand(map);
 
   const blockFeatures = useMemo<FeatureCollection>(() => ({
     type: 'FeatureCollection',
@@ -207,6 +204,7 @@ export default function RanchBoundaryEditorMap({
 
     map.current = nextMap;
     nextMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    nextMap.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
     nextMap.on('load', () => {
       setIsMapReady(true);
@@ -387,19 +385,10 @@ export default function RanchBoundaryEditorMap({
   }, [baseMap, isMapReady]);
 
   return (
-    <div
-      className={
-        isExpanded
-          ? 'fixed inset-0 z-[60] overflow-hidden bg-stone-200'
-          : 'relative h-full min-h-[360px] w-full overflow-hidden rounded-2xl bg-stone-200'
-      }
-    >
+    <div className="relative h-full min-h-[360px] w-full overflow-hidden rounded-2xl bg-stone-200">
       <div ref={mapContainer} className="absolute inset-0" />
 
-      <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2">
-        <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} />
-        <MapExpandButton isExpanded={isExpanded} onToggle={() => setExpanded((value) => !value)} />
-      </div>
+      <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="absolute left-1/2 top-4 -translate-x-1/2" />
 
       <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%-2rem,28rem)] flex-wrap gap-2 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur">
         <button

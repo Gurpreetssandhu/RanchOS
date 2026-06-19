@@ -7,8 +7,6 @@ import type { FeatureCollection } from 'geojson';
 import maplibregl from 'maplibre-gl';
 import MapLegend from '@/components/map/MapLegend';
 import BaseMapToggle from '@/components/map/BaseMapToggle';
-import MapExpandButton from '@/components/map/MapExpandButton';
-import { useMapExpand } from '@/components/map/useMapExpand';
 import {
   BlockGeometry,
   BlockRecord,
@@ -123,7 +121,6 @@ export default function BlockMap({
   const [activeTool, setActiveTool] = useState<EditorTool>(null);
   const [snapMessageState, setSnapMessageState] = useState<SnapMessageState | null>(null);
   const [baseMap, setBaseMapMode] = useState<BaseMapMode>('street');
-  const { isExpanded, setExpanded } = useMapExpand(map);
 
   const blockFeatures = useMemo<FeatureCollection>(() => ({
     type: 'FeatureCollection',
@@ -303,6 +300,7 @@ export default function BlockMap({
 
     map.current = nextMap;
     nextMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    nextMap.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
     nextMap.on('load', () => {
       setIsMapReady(true);
@@ -582,19 +580,10 @@ export default function BlockMap({
   }, [baseMap, isMapReady]);
 
   return (
-    <div
-      className={
-        isExpanded
-          ? 'fixed inset-0 z-[60] overflow-hidden bg-stone-200'
-          : 'relative h-full min-h-[400px] w-full overflow-hidden bg-stone-200'
-      }
-    >
+    <div className="relative h-full min-h-[400px] w-full overflow-hidden bg-stone-200">
       <div ref={mapContainer} className="absolute inset-0" />
 
-      <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2">
-        <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} />
-        <MapExpandButton isExpanded={isExpanded} onToggle={() => setExpanded((value) => !value)} />
-      </div>
+      <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="absolute left-1/2 top-4 z-20 -translate-x-1/2" />
 
       {editable ? (
         <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%-2rem,28rem)] flex-wrap gap-2 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur">
