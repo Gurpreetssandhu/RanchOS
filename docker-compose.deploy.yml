@@ -1,0 +1,72 @@
+# RanchOS deploy stack (web + API + Postgres/PostGIS + Redis).
+# One file, multiple environments. Isolation comes from COMPOSE_PROJECT_NAME
+# (set per env file) which prefixes containers, networks, and the pgdata volume,
+# so QA and PROD never share data.
+#
+# QA:    docker compose --env-file .env.qa   -f docker-compose.deploy.yml up -d --build
+# PROD:  docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --build
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PG_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Internal to the project network only (no host port published).
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      # Browser-facing web origin: auth runs behind the web app's /api proxy,
+      # so trustedOrigins + CORS must match the web URL.
+      BETTER_AUTH_URL: ${PUBLIC_WEB_URL}
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_WEB_URL}
+    ports:
+      - "${API_PORT}:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Inlined into the client bundle at build time.
+        NEXT_PUBLIC_APP_URL: ${PUBLIC_WEB_URL}
+        NEXT_PUBLIC_API_URL: http://api:3001
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # Server-side rewrite target (web container -> api container, internal).
+      NEXT_PUBLIC_API_URL: http://api:3001
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_WEB_URL}
+    ports:
+      - "${WEB_PORT}:3000"
+
+volumes:
+  pgdata:
