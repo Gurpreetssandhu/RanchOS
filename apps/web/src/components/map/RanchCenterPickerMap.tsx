@@ -354,9 +354,8 @@ export default function RanchCenterPickerMap({
     <div className="relative h-full min-h-[340px] w-full overflow-hidden rounded-2xl bg-stone-200">
       <div ref={mapContainer} className="absolute inset-0" />
 
-      <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="absolute left-1/2 top-4 -translate-x-1/2" />
-
       <div className="absolute left-4 top-4 z-10 max-w-sm rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur">
+        <BaseMapToggle mode={baseMap} onChange={setBaseMapMode} className="mb-3 !shadow-none" />
         <p className="text-sm font-semibold text-stone-900">Click the map to set ranch center</p>
         <p className="mt-1 text-xs text-stone-600">
           {center
