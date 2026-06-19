@@ -1,21 +1,26 @@
 import type { Map as MapLibreMap, StyleSpecification } from 'maplibre-gl';
 
+// Esri World Street Map. The previous OpenStreetMap tile server (tile.openstreetmap.org)
+// aborts/blocks our requests, leaving a blank base map. Esri serves both the street
+// and satellite (see addSatelliteLayer) imagery reliably from this environment and
+// needs no API key.
 const FALLBACK_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    osm: {
+    'esri-street': {
       type: 'raster',
-      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      ],
       tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: 'Tiles &copy; Esri and the GIS user community',
     },
   },
   layers: [
     {
-      id: 'osm-raster',
+      id: 'esri-street-raster',
       type: 'raster',
-      source: 'osm',
+      source: 'esri-street',
     },
   ],
 };
